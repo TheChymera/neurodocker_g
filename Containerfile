@@ -37,13 +37,26 @@ RUN rm /var/db/repos/gentoo -rf
 #	mkdir -p /var/db/repos/science && pushd /var/db/repos/science && \
 #		ls -lah && git clone ${REPO_URL} . && git fetch origin $science_hash && pwd && ls -lah . && git checkout $science_hash && rm .git -rf && popd
 
+
+#RUN \
+#	REPO_URL=$(grep "^sync-uri" /etc/portage/repos.conf/gentoo | sed -e "s/sync-uri *= *//g") && \
+#	mkdir -p /var/db/repos/gentoo && pushd /var/db/repos/gentoo && \
+#		git clone ${REPO_URL} . && git fetch origin $gentoo_hash && git checkout $gentoo_hash && rm .git -rf && popd && \
+#	REPO_URL=$(grep "^sync-uri" /etc/portage/repos.conf/science | sed -e "s/sync-uri *= *//g") && \
+#	mkdir -p /var/db/repos/science && pushd /var/db/repos/science && \
+#		git clone ${REPO_URL} . && git fetch origin $science_hash && git checkout $science_hash && rm .git -rf && popd
+
 RUN \
 	REPO_URL=$(grep "^sync-uri" /etc/portage/repos.conf/gentoo | sed -e "s/sync-uri *= *//g") && \
-	mkdir -p /var/db/repos/gentoo && pushd /var/db/repos/gentoo && \
-		git clone ${REPO_URL} . && git fetch origin $gentoo_hash && git checkout $gentoo_hash && rm .git -rf && popd && \
+	mkdir -p /var/db/repos/gentoo && pushd /var/db/repos/gentoo && git init . && \
+		git remote add origin ${REPO_URL} && \
+		git fetch --depth 1 origin $gentoo_hash && \
+		git reset --hard $gentoo_hash && rm .git -rf && popd && \
 	REPO_URL=$(grep "^sync-uri" /etc/portage/repos.conf/science | sed -e "s/sync-uri *= *//g") && \
-	mkdir -p /var/db/repos/science && pushd /var/db/repos/science && \
-		git clone ${REPO_URL} . && git fetch origin $science_hash && git checkout $science_hash && rm .git -rf && popd
+	mkdir -p /var/db/repos/science && pushd /var/db/repos/science && git init . && \
+		git remote add origin ${REPO_URL} && \
+		git fetch --depth 1 origin $science_hash && \
+		git reset --hard $science_hash && rm .git -rf && popd
 
 #RUN REPO_URL=$(grep "^sync-uri" /etc/portage/repos.conf/gentoo | sed -e "s/sync-uri *= *//g"); mkdir -p /var/db/repos/gentoo; pushd /var/db/repos/gentoo; git clone ${REPO_URL} .; git fetch origin $gentoo_hash; git checkout $gentoo_hash; rm .git -rf; popd
 #RUN REPO_URL=$(grep "^sync-uri" /etc/portage/repos.conf/science | sed -e "s/sync-uri *= *//g"); mkdir -p /var/db/repos/science; pushd /var/db/repos/science; git clone ${REPO_URL} .; git fetch origin $science_hash; git checkout $science_hash; rm .git -rf; popd
@@ -56,8 +69,10 @@ RUN sed -i /etc/portage/repos.conf/{gentoo,science} -e "/sync-git-verify-commit-
 # Make sure all CPU flags supported by the hardware are whitelisted
 # This only affects packages with handwritten assembly language optimizations, e.g. ffmpeg.
 # Removing it is safe, software will just not take full advantage of processor capabilities.
-#RUN emerge cpuid2cpuflags 
+#RUN emerge cpuid2cpuflags
 #RUN echo "*/* $(cpuid2cpuflags)" > /etc/portage/package.use/00cpu-flags
 
 ### Emerge cool stuff here
-RUN emerge afni fsl
+### Autounmask-continue enables all features on dependencies which the top level packages require
+### By default this needs user confirmation which would interrupt the build.
+RUN emerge --autounmask-continue afni fsl
