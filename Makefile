@@ -4,7 +4,7 @@
 REGISTRY=docker.io
 REPOSITORY=centerforopenneuroscience
 
-IMAGE_NAME=neurodocker_g_image
+IMAGE_NAME=neurodocker_g
 IMAGE_TAG=0.0.1
 
 FQDN_IMAGE=${REGISTRY}/${REPOSITORY}/${IMAGE_NAME}:${IMAGE_TAG}
@@ -27,6 +27,13 @@ else
     DISTFILE_CACHE_CMD =-v $(DISTFILE_CACHE_PATH):/var/cache/distfiles
 endif
 
+
+.PHONY: oci-image-interactive
+oci-image-interactive:
+	$(OCI_BINARY) run \
+	    -it \
+	    -f Containerfile_ \
+	    /bin/bash
 
 .PHONY: oci-image
 oci-image:

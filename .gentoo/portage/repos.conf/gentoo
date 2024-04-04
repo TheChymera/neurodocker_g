@@ -1,5 +1,6 @@
 [gentoo]
 location = /var/db/repos/gentoo
+# We sync manually, but we need sync-uri to be written down somewhere to do so
 sync-type = git
 sync-uri = https://github.com/gentoo-mirror/gentoo.git
 sync-git-verify-commit-signature = yes
