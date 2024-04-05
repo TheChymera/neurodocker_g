@@ -8,8 +8,8 @@ RUN emerge -v --noreplace dev-vcs/git
 RUN emerge -v1u portage
 
 # Pinned commits for the dependency tree state
-ARG gentoo_hash=776fd281e8a158bce2ea3f4845d4cfd848bc2dc5
-ARG science_hash=0e024beadac3ccaefb4a3961214eb74ee5853cf2
+ARG gentoo_hash=2d25617a1d085316761b06c17a93ec972f172fc6
+ARG science_hash=73916dd3680ffd92e5bd3d32b262e5d78c86a448
 ARG FEATURES="-ipc-sandbox -network-sandbox -pid-sandbox"
 
 # This will be bound, and contents available outside of container
