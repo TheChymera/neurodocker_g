@@ -26,12 +26,12 @@ RUN \
 	REPO_URL=$(grep "^sync-uri" /etc/portage/repos.conf/gentoo | sed -e "s/sync-uri *= *//g") && \
 	mkdir -p /var/db/repos/gentoo && pushd /var/db/repos/gentoo && git init . && \
 		git remote add origin ${REPO_URL} && \
-		git fetch --depth 1 origin $gentoo_hash && \
+		git fetch --filter="blob:none" origin $gentoo_hash && \
 		git reset --hard $gentoo_hash && rm .git -rf && popd && \
 	REPO_URL=$(grep "^sync-uri" /etc/portage/repos.conf/science | sed -e "s/sync-uri *= *//g") && \
 	mkdir -p /var/db/repos/science && pushd /var/db/repos/science && git init . && \
 		git remote add origin ${REPO_URL} && \
-		git fetch --depth 1 origin $science_hash && \
+		git fetch --filter="blob:none" origin $science_hash && \
 		git reset --hard $science_hash && rm .git -rf && popd
 
 
