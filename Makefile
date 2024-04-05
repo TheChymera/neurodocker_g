@@ -14,19 +14,14 @@ PACKAGE_NAME=mvmnda
 
 DISTFILE_CACHE_CMD :=
 
-check_defined = \
-    $(strip $(foreach 1,$1, \
-        $(call __check_defined,$1,$(strip $(value 2)))))
-__check_defined = \
-    $(if $(value $1),, \
-      $(error Undefined $1$(if $2, ($2))))
+# Default distfile path
+DISTFILE_CACHE_PATH?=/var/cache/distfiles
 
-ifeq ($(DISTFILE_CACHE_PATH),)
-    # If not set, don't add it as an option
+ifneq "$(wildcard $(DISTFILE_CACHE_PATH) )" ""
+        DISTFILE_CACHE_CMD =-v $(DISTFILE_CACHE_PATH):/var/cache/distfiles
 else
-    DISTFILE_CACHE_CMD =-v $(DISTFILE_CACHE_PATH):/var/cache/distfiles
+	Leave it undefined if the dir doesn't exist
 endif
-
 
 .PHONY: oci-image-interactive
 oci-image-interactive:
