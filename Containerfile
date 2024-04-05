@@ -21,31 +21,8 @@ COPY .gentoo/portage/ /etc/portage/
 # Moving gentoo repo from default rsync to git
 RUN rm /var/db/repos/gentoo -rf
 
-# Disable auto-sync
-#RUN sed -i /etc/portage/repos.conf/{gentoo,science} -e "s/sync-type *= *git/sync-type =/g"
-
 # Cloning manually to prevent vdb update, pinning state via git
-### This takes a long time dut to the long history and number of objects particularly in ::gentoo
-### No idea if first shallow cloning helps, maybe there are other ways to speed it up 🤔
-### The `git stash` step was added because somehow `vierror: Untracked working tree file '.editorconfig' would be overwritten by merge.` kept appearing
-
-#RUN \
-#	REPO_URL=$(grep "^#sync-uri" /etc/portage/repos.conf/gentoo | sed -e "s/#sync-uri *= *//g") && \
-#	mkdir -p /var/db/repos/gentoo && pushd /var/db/repos/gentoo && \
-#		ls -lah && git clone ${REPO_URL} . && git fetch origin $gentoo_hash && pwd && ls -lah . && git checkout $gentoo_hash && rm .git -rf && popd && \
-#	REPO_URL=$(grep "^#sync-uri" /etc/portage/repos.conf/science | sed -e "s/#sync-uri *= *//g") && \
-#	mkdir -p /var/db/repos/science && pushd /var/db/repos/science && \
-#		ls -lah && git clone ${REPO_URL} . && git fetch origin $science_hash && pwd && ls -lah . && git checkout $science_hash && rm .git -rf && popd
-
-
-#RUN \
-#	REPO_URL=$(grep "^sync-uri" /etc/portage/repos.conf/gentoo | sed -e "s/sync-uri *= *//g") && \
-#	mkdir -p /var/db/repos/gentoo && pushd /var/db/repos/gentoo && \
-#		git clone ${REPO_URL} . && git fetch origin $gentoo_hash && git checkout $gentoo_hash && rm .git -rf && popd && \
-#	REPO_URL=$(grep "^sync-uri" /etc/portage/repos.conf/science | sed -e "s/sync-uri *= *//g") && \
-#	mkdir -p /var/db/repos/science && pushd /var/db/repos/science && \
-#		git clone ${REPO_URL} . && git fetch origin $science_hash && git checkout $science_hash && rm .git -rf && popd
-
+# Allegedly it's better to chain everything in one command, something with container layers 🤔
 RUN \
 	REPO_URL=$(grep "^sync-uri" /etc/portage/repos.conf/gentoo | sed -e "s/sync-uri *= *//g") && \
 	mkdir -p /var/db/repos/gentoo && pushd /var/db/repos/gentoo && git init . && \
@@ -58,13 +35,13 @@ RUN \
 		git fetch --depth 1 origin $science_hash && \
 		git reset --hard $science_hash && rm .git -rf && popd
 
-#RUN REPO_URL=$(grep "^sync-uri" /etc/portage/repos.conf/gentoo | sed -e "s/sync-uri *= *//g"); mkdir -p /var/db/repos/gentoo; pushd /var/db/repos/gentoo; git clone ${REPO_URL} .; git fetch origin $gentoo_hash; git checkout $gentoo_hash; rm .git -rf; popd
-#RUN REPO_URL=$(grep "^sync-uri" /etc/portage/repos.conf/science | sed -e "s/sync-uri *= *//g"); mkdir -p /var/db/repos/science; pushd /var/db/repos/science; git clone ${REPO_URL} .; git fetch origin $science_hash; git checkout $science_hash; rm .git -rf; popd
 
 
-# Remove sync-uri for consistency
-RUN sed -i /etc/portage/repos.conf/{gentoo,science} -e "/sync-uri/d"
-RUN sed -i /etc/portage/repos.conf/{gentoo,science} -e "/sync-git-verify-commit-signature/d"
+# Old Christian: Remove sync-uri to not accidentally re-sync if we work with the package management interactively
+# Christian from the future: Maybe we want the option to re-sync if we're debugging it interactively...
+#RUN sed -i /etc/portage/repos.conf/{gentoo,science} -e "s/sync-type *= *git/sync-type =/g"
+#RUN sed -i /etc/portage/repos.conf/{gentoo,science} -e "/sync-uri/d"
+#RUN sed -i /etc/portage/repos.conf/{gentoo,science} -e "/sync-git-verify-commit-signature/d"
 
 # Make sure all CPU flags supported by the hardware are whitelisted
 # This only affects packages with handwritten assembly language optimizations, e.g. ffmpeg.
