@@ -5,7 +5,6 @@ FROM docker.io/gentoo/stage3:20240318
 COPY --from=portage /var/db/repos/gentoo /var/db/repos/gentoo
 
 RUN emerge -v --noreplace dev-vcs/git
-RUN emerge -v --noreplace app-editors/vim
 RUN emerge -v1u portage
 
 # Pinned commits for the dependency tree state
