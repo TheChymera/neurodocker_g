@@ -18,9 +18,7 @@ DISTFILE_CACHE_CMD :=
 DISTFILE_CACHE_PATH?=/var/cache/distfiles
 
 ifneq "$(wildcard $(DISTFILE_CACHE_PATH) )" ""
-        DISTFILE_CACHE_CMD =-v $(DISTFILE_CACHE_PATH):/var/cache/distfiles
-else
-	Leave it undefined if the dir doesn't exist
+    DISTFILE_CACHE_CMD =-v $(DISTFILE_CACHE_PATH):/var/cache/distfiles
 endif
 
 .PHONY: oci-image-interactive
